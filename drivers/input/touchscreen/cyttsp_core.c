@@ -655,8 +655,6 @@ void handle_multi_touch(struct cyttsp_track_data *t, struct cyttsp *ts)
 
 		input_report_abs(ts->input, ABS_MT_TRACKING_ID, id);
 		input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR, CY_NTCH);
-                input_report_abs(ts->input, ABS_PRESSURE, 0);
-                input_report_key(ts->input, BTN_TOUCH, 0);          
 		input_report_abs(ts->input, ABS_MT_WIDTH_MAJOR, t->tool_width);
 		input_report_abs(ts->input, ABS_MT_POSITION_X,
 					ts->prv_mt_pos[id][CY_XPOS]);
@@ -677,24 +675,19 @@ void handle_multi_touch(struct cyttsp_track_data *t, struct cyttsp *ts)
 						t->cur_mt_tch[id]);
 		input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR,
 						t->cur_mt_z[id]);
-		//fix ide
 		if (t->cur_mt_tch[id] >= CY_NUM_TRK_ID) {
-		input_report_abs(ts->input, ABS_PRESSURE, 0);
-		input_report_key(ts->input, BTN_TOUCH, 0);
-	}
-		else {
-		 input_report_abs(ts->input, ABS_PRESSURE, 255);
-		 input_report_key(ts->input, BTN_TOUCH, 1);
-	}
-		
-        input_report_abs(ts->input, ABS_MT_WIDTH_MAJOR,
-						t->tool_width);
-	input_report_abs(ts->input, ABS_MT_POSITION_X,
+				input_report_abs(ts->input, ABS_PRESSURE, 0);
+				input_report_key(ts->input, BTN_TOUCH, 0);
+		} else {
+				input_report_abs(ts->input, ABS_PRESSURE, 255);
+				input_report_key(ts->input, BTN_TOUCH, 1);
+		}
+		input_report_abs(ts->input, ABS_MT_POSITION_X,
 						t->cur_mt_pos[id][CY_XPOS]);
-	input_report_abs(ts->input, ABS_MT_POSITION_Y,
+		input_report_abs(ts->input, ABS_MT_POSITION_Y,
 						t->cur_mt_pos[id][CY_YPOS]);
-	        if (mt_sync_func)
-		    mt_sync_func(ts->input);
+		if (mt_sync_func)
+			mt_sync_func(ts->input);
 
 		ts->act_trk[id] = CY_TCH;
 		ts->prv_mt_pos[id][CY_XPOS] = t->cur_mt_pos[id][CY_XPOS];
@@ -799,7 +792,7 @@ no_track_id:
 			input_report_abs(ts->input, ABS_MT_WIDTH_MAJOR,
 					t->tool_width);
 			input_report_abs(ts->input, ABS_PRESSURE, 255);
-                        input_report_key(ts->input, BTN_TOUCH, 1);
+			input_report_key(ts->input, BTN_TOUCH, 1);
 			input_report_abs(ts->input, ABS_MT_POSITION_X,
 					t->cur_mt_pos[t->snd_trk[id]][CY_XPOS]);
 			input_report_abs(ts->input, ABS_MT_POSITION_Y,
@@ -819,7 +812,7 @@ no_track_id:
 			input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR,
 							CY_NTCH);
 			input_report_abs(ts->input, ABS_PRESSURE, 0);
-                        input_report_key(ts->input, BTN_TOUCH, 0);
+			input_report_key(ts->input, BTN_TOUCH, 0);
 			input_report_abs(ts->input, ABS_MT_WIDTH_MAJOR,
 							t->tool_width);
 			input_report_abs(ts->input, ABS_MT_POSITION_X,
@@ -2102,9 +2095,7 @@ void *cyttsp_core_init(struct cyttsp_bus_ops *bus_ops, struct device *pdev)
 				     ts->platform_data->maxy, 0, 0);
 		input_set_abs_params(input_device, ABS_MT_TOUCH_MAJOR, 0,
 				     CY_MAXZ, 0, 0);
-		
-                input_set_abs_params(input_device, ABS_PRESSURE, 0, 255, 0, 0);
-        
+		input_set_abs_params(input_device, ABS_PRESSURE, 0, 255, 0, 0);
 		input_set_abs_params(input_device, ABS_MT_WIDTH_MAJOR, 0,
 				     CY_LARGE_TOOL_WIDTH, 0, 0);
 		if (ts->platform_data->use_trk_id)

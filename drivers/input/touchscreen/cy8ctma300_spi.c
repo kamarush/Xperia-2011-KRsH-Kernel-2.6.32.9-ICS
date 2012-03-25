@@ -850,7 +850,6 @@ static void cy8ctma300_mt_handler(struct cy8ctma300_touch *tp, u8 *read_buf)
 		}
 
 		if (report) {
-
 			input_report_key(tp->input, BTN_TOUCH, (tp->track_state[i] == TP_TRACK_ACTIVE));
 
 			input_report_abs(tp->input, ABS_MT_TRACKING_ID,
@@ -1918,6 +1917,8 @@ static int cy8ctma300_touch_probe(struct spi_device *spi)
 
 	dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
 	dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+	dev->absbit[BIT_WORD(ABS_MT_TRACKING_ID)] |=
+						BIT_MASK(ABS_MT_TRACKING_ID);
 
 	/* cypressTMA300E multitouch support */
 	input_set_abs_params(dev, ABS_MT_POSITION_X, 0, pdata->x_max, 0, 0);

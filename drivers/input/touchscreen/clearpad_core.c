@@ -1086,8 +1086,7 @@ static int synaptics_funcarea_down(struct synaptics_clearpad *this,
 				   struct synaptics_pointer *pointer,
 				   int id, int x, int y, int wx, int wy, int z)
 {
-	int touch_major;
-	int width_major;
+	int touch_major, width_major;
 	struct synaptics_funcarea *funcarea = this->funcarea;
 	struct synaptics_button *button;
 	struct synaptics_pointer previous_pointer;
@@ -1124,7 +1123,7 @@ static int synaptics_funcarea_down(struct synaptics_clearpad *this,
 		LOG_EVENT(this, "pointer %d (x,y)=(%d,%d) w=(%d,%d) z=%d\n",
 			  id, pointer->cur.x, pointer->cur.y, wx, wy, z);
 		width_major = max(wx, wy) + 1;
-		touch_major = max(wx, wy) * z / SYNAPTICS_MAX_Z_VALUE + 1;
+		touch_major = max(wx, wy) * z /  SYNAPTICS_MAX_Z_VALUE + 1;
 		input_report_abs(this->input, ABS_MT_TRACKING_ID, id);
 		input_report_abs(this->input, ABS_MT_POSITION_X,
 				 pointer->cur.x);
