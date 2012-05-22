@@ -65,12 +65,12 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
 
   if [ -z "$KBUILD_BUILD_TIMESTAMP" ]; then
 	echo \#define LINUX_COMPILE_TIME \"`date +%T`\"
-	echo \#define LINUX_COMPILE_BY \"`whoami`\"
-	echo \#define LINUX_COMPILE_HOST \"`hostname | $UTS_TRUNCATE`\"
+	echo \#define LINUX_COMPILE_BY \"kamarush\"
+	echo \#define LINUX_COMPILE_HOST \"krsh\"
   else
 	echo \#define LINUX_COMPILE_TIME \"`date --date="$TIMESTAMP" +%R:%S`\"
-	echo \#define LINUX_COMPILE_BY \"BuildUser\"
-	echo \#define LINUX_COMPILE_HOST \"BuildHost\"
+	echo \#define LINUX_COMPILE_BY \"SEMCUser\"
+	echo \#define LINUX_COMPILE_HOST \"SEMCHost\"
   fi
 
   if [ -x /bin/dnsdomainname ]; then
@@ -84,7 +84,7 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
   else
     echo \#define LINUX_COMPILE_DOMAIN
   fi
-
+  
   echo \#define LINUX_COMPILER \"`$CC -v 2>&1 | tail -n 1`\"
 ) > .tmpcompile
 

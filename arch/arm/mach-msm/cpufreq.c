@@ -201,13 +201,16 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 	cpu_work = &per_cpu(cpufreq_work, policy->cpu);
 	INIT_WORK(&cpu_work->work, set_cpu_work);
 #endif
+	policy->min = 249600;
+	policy->max = 1017600;
+
 	return 0;
 }
 
 static struct freq_attr *msm_cpufreq_attr[] = {  
         &cpufreq_freq_attr_scaling_available_freqs,  
         NULL,
-};  
+};
 
 static struct cpufreq_driver msm_cpufreq_driver = {
 	/* lps calculations are handled here. */
@@ -216,7 +219,7 @@ static struct cpufreq_driver msm_cpufreq_driver = {
 	.verify		= msm_cpufreq_verify,
 	.target		= msm_cpufreq_target,
 	.name		= "msm",
-       .attr    = msm_cpufreq_attr,
+        .attr		= msm_cpufreq_attr,
 };
 
 static int __init msm_cpufreq_register(void)
