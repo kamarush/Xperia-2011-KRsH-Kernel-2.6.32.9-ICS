@@ -33,10 +33,10 @@ struct map_desc {
 extern void iotable_init(struct map_desc *, int);
 
 struct mem_type {
-  unsigned int prot_pte;
-  unsigned int prot_l1;
-  unsigned int prot_sect;
-  unsigned int domain;
+	unsigned int prot_pte;
+	unsigned int prot_l1;
+	unsigned int prot_sect;
+	unsigned int domain;
 };
 
 extern const struct mem_type *get_mem_type(unsigned int type);
