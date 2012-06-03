@@ -2475,7 +2475,6 @@
 0x00000000	ethtool_op_get_link	vmlinux	EXPORT_SYMBOL
 0x00000000	input_event_to_user	vmlinux	EXPORT_SYMBOL_GPL
 0x00000000	input_unregister_device	vmlinux	EXPORT_SYMBOL
-0x00000000	kgsl_gpuaddr_to_vaddr	vmlinux	EXPORT_SYMBOL
 0x00000000	read_cache_pages	vmlinux	EXPORT_SYMBOL
 0x00000000	ring_buffer_alloc_read_page	vmlinux	EXPORT_SYMBOL_GPL
 0x00000000	ip_generic_getfrag	vmlinux	EXPORT_SYMBOL
