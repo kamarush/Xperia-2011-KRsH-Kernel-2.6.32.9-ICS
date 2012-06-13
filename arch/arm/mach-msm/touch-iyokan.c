@@ -28,7 +28,7 @@ struct cyttsp_platform_data cyttsp_data = {
 	.use_hndshk = 0,
 	.use_timer = 0,
 	.use_sleep = 1,
-	.use_gestures = 1,
+	.use_gestures = 0,
 	.use_load_file = 1,
 	.use_force_fw_update = 0,
 	/* activate up groups */

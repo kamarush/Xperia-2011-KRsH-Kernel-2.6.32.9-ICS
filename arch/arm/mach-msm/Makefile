@@ -159,6 +159,8 @@ obj-$(CONFIG_MOGAMI_VIBRATOR) += vibrator-mogami.o
 obj-$(CONFIG_MACH_SEMC_ZEUS) += keypad-zeus.o
 obj-$(CONFIG_MACH_SEMC_ZEUS) += board-semc_zeus-wifi.o board-semc_zeus-rfkill.o
 
+obj-$(CONFIG_MACH_SEMC_PHOENIX) += board-semc_zeus.o keypad-zeus.o board-semc_zeus-wifi.o board-semc_zeus-rfkill.o
+
 obj-$(CONFIG_MACH_SAPPHIRE) += board-sapphire.o board-sapphire-gpio.o
 obj-$(CONFIG_MACH_SAPPHIRE) += board-sapphire-keypad.o board-sapphire-panel.o
 obj-$(CONFIG_MACH_SAPPHIRE) += board-sapphire-mmc.o board-sapphire-wifi.o

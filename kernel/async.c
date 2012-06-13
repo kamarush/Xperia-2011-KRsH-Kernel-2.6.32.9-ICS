@@ -123,7 +123,7 @@ static void run_one_entry(void)
 {
 	unsigned long flags;
 	struct async_entry *entry;
-	ktime_t calltime, delta, rettime;
+	ktime_t calltime = { .tv64 = 0 }, delta, rettime;
 
 	/* 1) pick one task from the pending queue */
 

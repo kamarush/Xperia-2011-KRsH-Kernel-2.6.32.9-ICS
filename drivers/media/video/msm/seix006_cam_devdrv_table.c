@@ -1897,7 +1897,12 @@ const struct reg_entry seix006_GEN_period_1_ES1[] = {
 	{0x000F, 0xE6, REG_BITS_8},
 	{0x001C, 0x00, REG_BITS_8},
 	{0x001E, 0x00, REG_BITS_8},
+#ifdef CONFIG_MACH_SEMC_PHOENIX
+	{0x001F, 0x03, REG_BITS_8},
+	{0x0020, 0x03, REG_BITS_8},
+#else
 	{0x001F, 0x00, REG_BITS_8},
+#endif
 	{0x0021, 0x00, REG_BITS_8},
 	{0x0022, 0x8002, REG_BITS_16}, /* 640 */
 	{0x0024, 0x200A, REG_BITS_16},
@@ -2082,6 +2087,10 @@ int32_t sizeof_seix006_GEN_period_1_ES1 = sizeof(seix006_GEN_period_1_ES1);
 
 const struct reg_entry seix006_GEN_period_1_ES2[] = {
 	{0x000B, 0x00, REG_BITS_8},
+#ifdef CONFIG_MACH_SEMC_PHOENIX
+	{0x001F, 0x03, REG_BITS_8},
+	{0x0020, 0x03, REG_BITS_8},
+#endif
 	{0x0022, 0x8002, REG_BITS_16}, /* 640 */
 	{0x0028, 0xE001, REG_BITS_16},
 	{0x0205, 0x46, REG_BITS_8}, /* Quality 70 */

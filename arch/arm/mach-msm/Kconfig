@@ -303,6 +303,16 @@ config MACH_SEMC_HAIDA
 	help
 	  Support for the SonyEricsson Haida devices.
 
+config MACH_SEMC_PHOENIX
+	depends on ARCH_MSM7X30
+	depends on !MSM_STACKED_MEMORY
+	select SUPPORT_ALIEN_USB_CHARGER
+	select USE_PMIC_CHARGING_ON_AMSS
+	default n
+	bool "SonyEricsson Phoenix"
+	help
+	  Support for the SonyEricsson phoenix devices.
+
 config MACH_SAPPHIRE
 	depends on ARCH_MSM7X01A
 	default n

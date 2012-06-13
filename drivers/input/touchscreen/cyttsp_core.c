@@ -2134,6 +2134,10 @@ void *cyttsp_core_init(struct cyttsp_bus_ops *bus_ops, struct device *pdev)
 	memset(ts->prv_mt_tch, CY_IGNR_TCH, sizeof(ts->prv_mt_tch));
 	memset(ts->prv_st_tch, CY_IGNR_TCH, sizeof(ts->prv_st_tch));
 
+<<<<<<< HEAD
+	/* enable tracking id and multi-touch */
+=======
+>>>>>>> 48da92db3d0c0398f37f0a0ac17207f62793be9e
 	ts->platform_data->use_mt = 1;
 	ts->platform_data->use_trk_id = 1;
 

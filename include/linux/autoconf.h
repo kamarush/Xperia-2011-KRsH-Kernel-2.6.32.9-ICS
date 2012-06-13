@@ -1,7 +1,7 @@
 /*
  * Automatically generated C config: don't edit
  * Linux kernel version: 2.6.32.9
- * Thu May 31 21:27:04 2012
+ * Wed Jun 13 17:39:00 2012
  */
 #define AUTOCONF_INCLUDED
 #define CONFIG_VIDEO_V4L1_COMPAT 1
@@ -677,6 +677,7 @@
 #define CONFIG_PACKET 1
 #define CONFIG_CPU_FREQ_GOV_CONSERVATIVE 1
 #define CONFIG_MSM_RPCSERVER_WATCHDOG 1
+#define CONFIG_CRYPTO_SHA256 1
 #define CONFIG_BT_RFCOMM 1
 #define CONFIG_BRIDGE_NETFILTER 1
 #define CONFIG_SIMPLE_REMOTE_PLATFORM 1
