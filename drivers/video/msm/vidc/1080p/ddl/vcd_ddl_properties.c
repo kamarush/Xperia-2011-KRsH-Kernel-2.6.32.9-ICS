@@ -325,7 +325,7 @@ static u32 ddl_set_dec_property(struct ddl_client_context *ddl,
 			DDL_CLIENT_WAIT_FOR_INITCODEC) ||
 			DDLCLIENT_STATE_IS(ddl, DDL_CLIENT_WAIT_FOR_DPB) ||
 			DDLCLIENT_STATE_IS(ddl, DDL_CLIENT_OPEN))) {
-			phys_addr = mv_buff->dev_addr;
+			phys_addr = mv_buff->physical_addr;
 			virt_addr = mv_buff->kernel_virtual_addr;
 			buffer_size = mv_buff->size/mv_buff->count;
 
@@ -363,28 +363,6 @@ static u32 ddl_set_dec_property(struct ddl_client_context *ddl,
 			memset(&decoder->hw_bufs.h264_mv, 0, sizeof(struct
 					ddl_buf_addr) * DDL_MAX_BUFFER_COUNT);
 			vcd_status = VCD_S_SUCCESS;
-		}
-		break;
-	case VCD_I_OUTPUT_ORDER:
-		{
-			if (sizeof(u32) == property_hdr->sz &&
-				DDLCLIENT_STATE_IS(ddl, DDL_CLIENT_OPEN)) {
-					decoder->output_order =
-						*(u32 *)property_value;
-					vcd_status = VCD_S_SUCCESS;
-			}
-		}
-		break;
-	case VCD_I_DEC_PICTYPE:
-		{
-			if ((sizeof(u32) == property_hdr->sz) &&
-				DDLCLIENT_STATE_IS(ddl, DDL_CLIENT_OPEN)) {
-				decoder->idr_only_decoding =
-					*(u32 *)property_value;
-				ddl_set_default_decoder_buffer_req(
-						decoder, true);
-				vcd_status = VCD_S_SUCCESS;
-			}
 		}
 		break;
 	case VCD_I_METADATA_ENABLE:
@@ -836,55 +814,38 @@ static u32 ddl_set_enc_property(struct ddl_client_context *ddl,
 	break;
 	case VCD_I_RECON_BUFFERS:
 	{
-		int index, index_hw_bufs = -1;
+		int index;
 		struct vcd_property_enc_recon_buffer *recon_buffers =
 			(struct vcd_property_enc_recon_buffer *)property_value;
 		for (index = 0; index < 4; index++) {
-			if (!encoder->hw_bufs.dpb_y[index].
-				align_physical_addr) {
-					index_hw_bufs = index;
+			if (!encoder->hw_bufs.dpb_y[index].align_physical_addr)
 				break;
-			} else
+			else
 				continue;
-		}
-		if (index_hw_bufs == -1) {
-			DDL_MSG_HIGH("ERROR: value of index_hw_bufs");
-			vcd_status = VCD_ERR_ILLEGAL_PARM;
-		} else {
-			if (property_hdr->sz == sizeof(struct
-				vcd_property_enc_recon_buffer)) {
-				encoder->hw_bufs.dpb_y[index_hw_bufs].
-				align_physical_addr =
-					recon_buffers->dev_addr;
-				encoder->hw_bufs.dpb_y[index_hw_bufs].
-				align_virtual_addr =
-					recon_buffers->kernel_virtual_addr;
-				encoder->hw_bufs.dpb_y[index_hw_bufs].
-				buffer_size = recon_buffers->buffer_size;
-				encoder->hw_bufs.dpb_c[index_hw_bufs].
-				align_physical_addr =
-				recon_buffers->dev_addr +
-					ddl_get_yuv_buf_size(
-						encoder->frame_size.width,
-						encoder->frame_size.height,
-						DDL_YUV_BUF_TYPE_TILE);
-				encoder->hw_bufs.dpb_c[index_hw_bufs].
-					align_virtual_addr =
-					recon_buffers->kernel_virtual_addr +
-					recon_buffers->ysize;
-				DDL_MSG_LOW("Y::KVirt: %p,KPhys: %p"
-							"UV::KVirt: %p,KPhys: %p\n",
-				encoder->hw_bufs.dpb_y[index_hw_bufs].
-				align_virtual_addr,
-				encoder->hw_bufs.dpb_y[index_hw_bufs].
-				align_physical_addr,
-				encoder->hw_bufs.dpb_c[index_hw_bufs].
-				align_virtual_addr,
-				encoder->hw_bufs.dpb_c[index_hw_bufs].
-				align_physical_addr);
-				vcd_status = VCD_S_SUCCESS;
-				}
-		}
+			}
+		if (property_hdr->sz == sizeof(struct
+			vcd_property_enc_recon_buffer)) {
+			encoder->hw_bufs.dpb_y[index].align_physical_addr =
+				recon_buffers->physical_addr;
+			encoder->hw_bufs.dpb_y[index].align_virtual_addr =
+				recon_buffers->kernel_virtual_addr;
+			encoder->hw_bufs.dpb_y[index].buffer_size =
+				recon_buffers->buffer_size;
+			encoder->hw_bufs.dpb_c[index].align_physical_addr =
+			recon_buffers->physical_addr + ddl_get_yuv_buf_size(
+				encoder->frame_size.width, encoder->frame_size.
+				height, DDL_YUV_BUF_TYPE_TILE);
+			encoder->hw_bufs.dpb_c[index].align_virtual_addr =
+				recon_buffers->kernel_virtual_addr +
+				recon_buffers->ysize;
+			DDL_MSG_LOW("Y::KVirt: %p,KPhys: %p"
+						"UV::KVirt: %p,KPhys: %p\n",
+			encoder->hw_bufs.dpb_y[index].align_virtual_addr,
+			encoder->hw_bufs.dpb_y[index].align_physical_addr,
+			encoder->hw_bufs.dpb_c[index].align_virtual_addr,
+			encoder->hw_bufs.dpb_c[index].align_physical_addr);
+			vcd_status = VCD_S_SUCCESS;
+			}
 	}
 	break;
 	case VCD_I_FREE_RECON_BUFFERS:
@@ -1037,14 +998,6 @@ static u32 ddl_get_dec_property(struct ddl_client_context *ddl,
 						mv_size->height, mv_size->size,
 						mv_size->alignment);
 			vcd_status = VCD_S_SUCCESS;
-		}
-		break;
-	case VCD_I_OUTPUT_ORDER:
-		{
-			if (sizeof(u32) == property_hdr->sz) {
-				*(u32 *)property_value = decoder->output_order;
-				vcd_status = VCD_S_SUCCESS;
-			}
 		}
 		break;
 	case VCD_I_METADATA_ENABLE:
