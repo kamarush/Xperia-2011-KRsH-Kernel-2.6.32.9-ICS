@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2010, Code Aurora Forum. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -374,8 +374,7 @@ static u32 vcd_flush_in_invalid(struct vcd_clnt_ctxt *cctxt,
 			cctxt->status.mask |= (mode & VCD_FLUSH_ALL);
 			vcd_send_flush_done(cctxt, VCD_S_SUCCESS);
 		}
-	} else
-		cctxt->status.mask |= (mode & VCD_FLUSH_ALL);
+	}
 	return rc;
 }
 
@@ -525,17 +524,12 @@ static u32 vcd_set_property_cmn
 			}
 			break;
 		}
-	case VCD_I_INTRA_PERIOD:
-	   {
-		  struct vcd_property_i_period *iperiod =
-			 (struct vcd_property_i_period *)prop_val;
-		  cctxt->bframe = iperiod->b_frames;
-		  break;
-	   }
+
 	default:
 		{
 			break;
 		}
+
 	}
 	return rc;
 }
@@ -1108,9 +1102,6 @@ static void vcd_clnt_cb_in_flushing
 		if (frm_trans_end && !cctxt->status.frame_submitted) {
 			VCD_MSG_HIGH
 			    ("All pending frames recvd from DDL");
-			if (cctxt->status.mask & VCD_FLUSH_INPUT)
-				vcd_flush_bframe_buffers(cctxt,
-							VCD_FLUSH_INPUT);
 			if (cctxt->status.mask & VCD_FLUSH_OUTPUT)
 				vcd_flush_output_buffers(cctxt);
 			vcd_send_flush_done(cctxt, VCD_S_SUCCESS);
@@ -1219,18 +1210,18 @@ static void vcd_clnt_cb_in_stopping
 			frm_trans_end = true;
 		}
 		if (frm_trans_end && !cctxt->status.frame_submitted) {
+
 				VCD_MSG_HIGH
-					("All pending frames recvd from DDL");
-				vcd_flush_bframe_buffers(cctxt,
-							VCD_FLUSH_INPUT);
+				    ("All pending frames recvd from DDL");
 				vcd_flush_output_buffers(cctxt);
 				cctxt->status.mask &= ~VCD_FLUSH_ALL;
 				vcd_release_all_clnt_frm_transc(cctxt);
 				VCD_MSG_HIGH
-				("All buffers flushed. Enqueuing stop cmd");
+				    ("All buffers flushed. Enqueuing stop cmd");
 				vcd_client_cmd_flush_and_en_q(cctxt,
 						VCD_CMD_CODEC_STOP);
 		}
+
 	}
 }
 
