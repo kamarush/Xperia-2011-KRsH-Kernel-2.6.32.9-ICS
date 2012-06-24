@@ -2096,15 +2096,6 @@ u32 vcd_handle_first_fill_output_buffer(
 	u32 *handled)
 {
 	u32 rc = VCD_S_SUCCESS;
-	if (cctxt->status.mask & VCD_IN_RECONFIG) {
-		cctxt->callback(VCD_EVT_RESP_OUTPUT_DONE,
-			VCD_S_SUCCESS,
-			buffer,
-			sizeof(struct vcd_frame_data),
-			cctxt, cctxt->client_data);
-		*handled = true;
-		return rc;
-	}
 	rc = vcd_check_if_buffer_req_met(cctxt, VCD_BUFFER_OUTPUT);
 	VCD_FAILED_RETURN(rc, "Output buffer requirements not met");
 	if (cctxt->out_buf_pool.q_len > 0) {
@@ -2799,8 +2790,9 @@ struct vcd_buffer_entry *vcd_check_fill_output_buffer
 		return NULL;
 	}
 
-	if (buffer->alloc_len < buf_pool->buf_req.sz ||
-		buffer->alloc_len > buf_entry->sz) {
+	if ((buffer->alloc_len < buf_pool->buf_req.sz ||
+		 buffer->alloc_len > buf_entry->sz) &&
+		 !(cctxt->status.mask & VCD_IN_RECONFIG)) {
 		VCD_MSG_ERROR
 			("Bad buffer Alloc_len = %d, Actual sz = %d, "
 			 " Min sz = %u",
