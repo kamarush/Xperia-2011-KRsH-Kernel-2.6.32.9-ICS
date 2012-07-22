@@ -644,7 +644,7 @@ void handle_single_touch(struct cyttsp_xydata *xy, struct cyttsp_track_data *t,
 
 void handle_multi_touch(struct cyttsp_track_data *t, struct cyttsp *ts)
 {
-	u8 id;
+	u8 id, count;
 	u8 i, loc;
 	void (*mt_sync_func)(struct input_dev *) = ts->platform_data->mt_sync;
 
@@ -657,23 +657,12 @@ void handle_multi_touch(struct cyttsp_track_data *t, struct cyttsp *ts)
 		if ((ts->act_trk[id] == CY_NTCH) || (t->cur_trk[id] != CY_NTCH))
 			continue;
 
-		input_report_abs(ts->input, ABS_MT_TRACKING_ID, id);
-		input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR, CY_NTCH);
-		input_report_key(ts->input, BTN_TOUCH, CY_NTCH);
-		input_report_abs(ts->input, ABS_MT_WIDTH_MAJOR, t->tool_width);
-		input_report_abs(ts->input, ABS_MT_POSITION_X,
-					ts->prv_mt_pos[id][CY_XPOS]);
-		input_report_abs(ts->input, ABS_MT_POSITION_Y,
-					ts->prv_mt_pos[id][CY_YPOS]);
-		input_report_abs(ts->input, ABS_MT_PRESSURE, t->cur_mt_z[id]);
-		if (mt_sync_func)
-			mt_sync_func(ts->input);
 		ts->act_trk[id] = CY_NTCH;
 		ts->prv_mt_pos[id][CY_XPOS] = 0;
 		ts->prv_mt_pos[id][CY_YPOS] = 0;
 	}
 	/* set Multi-Touch current event signals */
-	for (id = 0; id < CY_NUM_MT_TCH_ID; id++) {
+	for (count = id = 0; id < CY_NUM_MT_TCH_ID; id++) {
 		if (t->cur_mt_tch[id] >= CY_NUM_TRK_ID)
 			continue;
 
@@ -681,7 +670,6 @@ void handle_multi_touch(struct cyttsp_track_data *t, struct cyttsp *ts)
 						t->cur_mt_tch[id]);
 		input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR,
 						t->cur_mt_z[id]);
-		input_report_key(ts->input, BTN_TOUCH, CY_TCH);
 		input_report_abs(ts->input, ABS_MT_WIDTH_MAJOR,
 						t->tool_width);
 		input_report_abs(ts->input, ABS_MT_POSITION_X,
@@ -693,10 +681,16 @@ void handle_multi_touch(struct cyttsp_track_data *t, struct cyttsp *ts)
 		if (mt_sync_func)
 			mt_sync_func(ts->input);
 
+		count++;
 		ts->act_trk[id] = CY_TCH;
 		ts->prv_mt_pos[id][CY_XPOS] = t->cur_mt_pos[id][CY_XPOS];
 		ts->prv_mt_pos[id][CY_YPOS] = t->cur_mt_pos[id][CY_YPOS];
 	}
+	/* if no fingers were pressed, we need to output a MT sync so that the
+	 * userspace can identify when the last finger has been removed from
+	 * the device */
+	if (!count)
+		mt_sync_func(ts->input);
 	return;
 no_track_id:
 
@@ -793,7 +787,6 @@ no_track_id:
 		if (t->snd_trk[id] < CY_NUM_TRK_ID) {
 			input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR,
 					t->cur_mt_z[t->snd_trk[id]]);
-			input_report_key(ts->input, BTN_TOUCH, CY_TCH);
 			input_report_abs(ts->input, ABS_MT_WIDTH_MAJOR,
 					t->tool_width);
 			input_report_abs(ts->input, ABS_MT_POSITION_X,
@@ -814,7 +807,6 @@ no_track_id:
 			/* void out this touch */
 			input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR,
 							CY_NTCH);
-			input_report_key(ts->input, BTN_TOUCH, CY_NTCH);
 			input_report_abs(ts->input, ABS_MT_WIDTH_MAJOR,
 							t->tool_width);
 			input_report_abs(ts->input, ABS_MT_POSITION_X,
@@ -2134,28 +2126,34 @@ void *cyttsp_core_init(struct cyttsp_bus_ops *bus_ops, struct device *pdev)
 	memset(ts->prv_mt_tch, CY_IGNR_TCH, sizeof(ts->prv_mt_tch));
 	memset(ts->prv_st_tch, CY_IGNR_TCH, sizeof(ts->prv_st_tch));
 
+	/* enable tracking id and multi-touch */
 	ts->platform_data->use_mt = 1;
 	ts->platform_data->use_trk_id = 1;
 
 	set_bit(EV_SYN, input_device->evbit);
 	set_bit(EV_KEY, input_device->evbit);
 	set_bit(EV_ABS, input_device->evbit);
-	set_bit(BTN_TOUCH, input_device->keybit);
-	set_bit(BTN_2, input_device->keybit);
+	if (ts->platform_data->use_st) {
+		set_bit(BTN_TOUCH, input_device->keybit);
+		set_bit(BTN_2, input_device->keybit);
+	}
 	if (ts->platform_data->use_gestures)
 		set_bit(BTN_3, input_device->keybit);
 
-	input_set_abs_params(input_device, ABS_X, 0, ts->platform_data->maxx,
-			     0, 0);
-	input_set_abs_params(input_device, ABS_Y, 0, ts->platform_data->maxy,
-			     0, 0);
-	input_set_abs_params(input_device, ABS_TOOL_WIDTH, 0,
-			     CY_LARGE_TOOL_WIDTH, 0, 0);
-	input_set_abs_params(input_device, ABS_PRESSURE, 0, CY_MAXZ, 0, 0);
-	input_set_abs_params(input_device, ABS_HAT0X, 0,
-			     ts->platform_data->maxx, 0, 0);
-	input_set_abs_params(input_device, ABS_HAT0Y, 0,
-			     ts->platform_data->maxy, 0, 0);
+	if (ts->platform_data->use_st) {
+		input_set_abs_params(input_device, ABS_X, 0,
+				ts->platform_data->maxx, 0, 0);
+		input_set_abs_params(input_device, ABS_Y, 0,
+				ts->platform_data->maxy, 0, 0);
+		input_set_abs_params(input_device, ABS_TOOL_WIDTH, 0,
+				CY_LARGE_TOOL_WIDTH, 0, 0);
+		input_set_abs_params(input_device, ABS_PRESSURE, 0, CY_MAXZ,
+				0, 0);
+		input_set_abs_params(input_device, ABS_HAT0X, 0,
+				ts->platform_data->maxx, 0, 0);
+		input_set_abs_params(input_device, ABS_HAT0Y, 0,
+				ts->platform_data->maxy, 0, 0);
+	}
 	if (ts->platform_data->use_gestures) {
 		input_set_abs_params(input_device, ABS_HAT1X, 0, CY_MAXZ,
 				     0, 0);
