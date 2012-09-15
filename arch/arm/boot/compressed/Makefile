@@ -92,15 +92,15 @@ LDFLAGS_vmlinux += -p --no-undefined -X \
 
 # Don't allow any static data in misc.o, which
 # would otherwise mess up our GOT table
-CFLAGS_misc.o := -Dstatic=
+CFLAGS_misc.o := -Wa,-march=armv7-a -Dstatic=
 
 $(obj)/vmlinux: $(obj)/vmlinux.lds $(obj)/$(HEAD) $(obj)/piggy.o \
-	 	$(addprefix $(obj)/, $(OBJS)) FORCE
-	$(call if_changed,ld)
-	@:
+                $(addprefix $(obj)/, $(OBJS)) FORCE
+        $(call if_changed,ld)
+        @:
 
 $(obj)/piggy.gz: $(obj)/../Image FORCE
-	$(call if_changed,gzip)
+        $(call if_changed,gzip)
 
 $(obj)/piggy.o:  $(obj)/piggy.gz FORCE
 
