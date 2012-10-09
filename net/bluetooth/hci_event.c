@@ -1192,6 +1192,16 @@ static inline void hci_remote_features_evt(struct hci_dev *hdev, struct sk_buff 
 					HCI_OP_READ_REMOTE_EXT_FEATURES,
 							sizeof(cp), &cp);
 			} else {
+				if (!ev->status) {
+					struct hci_cp_remote_name_req cp;
+					memset(&cp, 0, sizeof(cp));
+					bacpy(&cp.bdaddr, &conn->dst);
+					cp.pscan_rep_mode = 0x02;
+					hci_send_cmd(hdev,
+							HCI_OP_REMOTE_NAME_REQ,
+							sizeof(cp), &cp);
+				}
+
 				conn->state = BT_CONNECTED;
 				hci_proto_connect_cfm(conn, ev->status);
 				hci_conn_put(conn);
@@ -1674,6 +1684,15 @@ static inline void hci_remote_ext_features_evt(struct hci_dev *hdev, struct sk_b
 		}
 
 		if (conn->state == BT_CONFIG) {
+			if (!ev->status) {
+				struct hci_cp_remote_name_req cp;
+				memset(&cp, 0, sizeof(cp));
+				bacpy(&cp.bdaddr, &conn->dst);
+				cp.pscan_rep_mode = 0x02;
+				hci_send_cmd(hdev, HCI_OP_REMOTE_NAME_REQ,
+							sizeof(cp), &cp);
+			}
+
 			if (!ev->status && hdev->ssp_mode > 0 &&
 					conn->ssp_mode > 0 && conn->out &&
 					conn->sec_level != BT_SECURITY_SDP) {

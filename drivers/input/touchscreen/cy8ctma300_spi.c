@@ -823,12 +823,6 @@ static void cy8ctma300_mt_handler(struct cy8ctma300_touch *tp, u8 *read_buf)
 	memset(&tp->track_detect[0], TP_FNGR_NOTRACK,
 						ARRAY_SIZE(tp->track_detect));
 
-	if (fdetect) {
-		input_report_key(tp->input, BTN_TOUCH, 1);
-	} else {
-		input_report_key(tp->input, BTN_TOUCH, 0);
-	}
-
 	for (i = 0; i < TP_TOUCH_CNT_MAX; i++) {
 		if (tp->track_state[i] == TP_TRACK_ACTIVE)
 			cy8ctma300_update_track(tp, i, cur_touch, fdetect);
@@ -840,9 +834,13 @@ static void cy8ctma300_mt_handler(struct cy8ctma300_touch *tp, u8 *read_buf)
 			touch_major = 0;
 			pressure = 0;
 			tp->track_state[i] = TP_TRACK_INACTIVE;
-			report = 1;
+			report = 0;
 			dev_dbg(&tp->spi->dev, "%s: MT report removed "
 						"finger\n", __func__);
+
+			if (!fdetect) {
+				input_mt_sync(tp->input);
+			}
 		} else if (tp->track_state[i] == TP_TRACK_ACTIVE) {
 			width_major = pdata->width_major;
 			touch_major = min((width_major * tp->mt_pos[i].z
@@ -1920,7 +1918,6 @@ static int cy8ctma300_touch_probe(struct spi_device *spi)
 	dev->dev.parent = &spi->dev;
 
 	dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-	dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
 	dev->absbit[BIT_WORD(ABS_MT_TRACKING_ID)] |=
 						BIT_MASK(ABS_MT_TRACKING_ID);
 

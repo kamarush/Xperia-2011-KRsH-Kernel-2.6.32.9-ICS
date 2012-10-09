@@ -240,7 +240,9 @@ static inline void suspend_thaw_processes(void)
 #ifdef CONFIG_WAKELOCK
 /* kernel/power/wakelock.c */
 extern struct workqueue_struct *suspend_work_queue;
+extern struct workqueue_struct *sys_sync_work_queue;
 extern struct wake_lock main_wake_lock;
+extern struct wake_lock sys_sync_wake_lock;
 extern suspend_state_t requested_suspend_state;
 #endif
 

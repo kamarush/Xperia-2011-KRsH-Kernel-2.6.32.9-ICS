@@ -45,7 +45,9 @@ static LIST_HEAD(inactive_locks);
 static struct list_head active_wake_locks[WAKE_LOCK_TYPE_COUNT];
 static int current_event_num;
 struct workqueue_struct *suspend_work_queue;
+struct workqueue_struct *sys_sync_work_queue;
 struct wake_lock main_wake_lock;
+struct wake_lock sys_sync_wake_lock;
 suspend_state_t requested_suspend_state = PM_SUSPEND_MEM;
 static struct wake_lock unknown_wakeup;
 
@@ -549,6 +551,7 @@ static int __init wakelocks_init(void)
 			"deleted_wake_locks");
 #endif
 	wake_lock_init(&main_wake_lock, WAKE_LOCK_SUSPEND, "main");
+	wake_lock_init(&sys_sync_wake_lock, WAKE_LOCK_SUSPEND, "sys_sync");
 	wake_lock(&main_wake_lock);
 	wake_lock_init(&unknown_wakeup, WAKE_LOCK_SUSPEND, "unknown_wakeups");
 
@@ -568,13 +571,20 @@ static int __init wakelocks_init(void)
 		ret = -ENOMEM;
 		goto err_suspend_work_queue;
 	}
+    sys_sync_work_queue = create_singlethread_workqueue("sys_sync");
+    if (sys_sync_work_queue == NULL) {
+		ret = -ENOMEM;
+		goto err_sys_sync_work_queue;
+    }
 
 #ifdef CONFIG_WAKELOCK_STAT
 	proc_create("wakelocks", S_IRUGO, NULL, &wakelock_stats_fops);
 #endif
 
 	return 0;
-
+err_sys_sync_work_queue:
+    pr_err("wakelocks_init: create sys_sync work queue failed");
+    destroy_workqueue(suspend_work_queue);
 err_suspend_work_queue:
 	platform_driver_unregister(&power_driver);
 err_platform_driver_register:
@@ -582,6 +592,7 @@ err_platform_driver_register:
 err_platform_device_register:
 	wake_lock_destroy(&unknown_wakeup);
 	wake_lock_destroy(&main_wake_lock);
+	wake_lock_destroy(&sys_sync_wake_lock);
 #ifdef CONFIG_WAKELOCK_STAT
 	wake_lock_destroy(&deleted_wake_locks);
 #endif
@@ -593,10 +604,12 @@ static void  __exit wakelocks_exit(void)
 #ifdef CONFIG_WAKELOCK_STAT
 	remove_proc_entry("wakelocks", NULL);
 #endif
+	destroy_workqueue(sys_sync_work_queue);
 	destroy_workqueue(suspend_work_queue);
 	platform_driver_unregister(&power_driver);
 	platform_device_unregister(&power_device);
 	wake_lock_destroy(&unknown_wakeup);
+	wake_lock_destroy(&sys_sync_wake_lock);
 	wake_lock_destroy(&main_wake_lock);
 #ifdef CONFIG_WAKELOCK_STAT
 	wake_lock_destroy(&deleted_wake_locks);
