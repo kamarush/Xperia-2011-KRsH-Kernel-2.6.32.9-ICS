@@ -163,9 +163,10 @@ enum {
 	MDP4_MIXER_STAGE_BASE,
 	MDP4_MIXER_STAGE0,	/* zorder 0 */
 	MDP4_MIXER_STAGE1,	/* zorder 1 */
-	MDP4_MIXER_STAGE2,	/* zorder 2 */
-	MDP4_MIXER_STAGE_MAX
+	MDP4_MIXER_STAGE2	/* zorder 2 */
 };
+
+#define MDP4_MAX_STAGE	4
 
 enum {
 	MDP4_FRAME_FORMAT_LINEAR,
@@ -438,8 +439,6 @@ void mdp4_mddi_kickoff_video(struct msm_fb_data_type *mfd,
                                 struct mdp4_overlay_pipe *pipe);
 
 void mdp4_mddi_read_ptr_intr(void);
-
-int mdp4_mixer_info(int mixer_num, struct mdp_mixer_info *info);
 
 void mdp_dmap_vsync_set(int enable);
 int mdp_dmap_vsync_get(void);
