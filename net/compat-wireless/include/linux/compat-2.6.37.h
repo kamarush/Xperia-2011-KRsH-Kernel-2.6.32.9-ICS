@@ -110,7 +110,7 @@ extern void compat_led_brightness_set(struct led_classdev *led_cdev,
 
 #define netdev_refcnt_read(a) atomic_read(&a->refcnt)
 
-extern void *vzalloc(unsigned long size);
+//extern void *vzalloc(unsigned long size);
 
 #define rtnl_dereference(p)                                     \
         rcu_dereference_protected(p, lockdep_rtnl_is_held())
